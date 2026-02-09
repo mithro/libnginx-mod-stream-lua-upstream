@@ -1,0 +1,7 @@
+libnginx-mod-stream-lua (0.0.16-1) unstable; urgency=medium
+
+  * Initial release.
+  * Package OpenResty stream-lua-nginx-module v0.0.16 as a Debian
+    nginx dynamic module.
+
+ -- Tim Ansell <me@mith.ro>  Mon, 09 Feb 2026 11:30:36 +1030

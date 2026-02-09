@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+include /usr/share/dpkg/architecture.mk
+export LUAJIT_INC=/usr/include/luajit-2.1
+export LUAJIT_LIB=/usr/lib/$(DEB_HOST_MULTIARCH)/libluajit-5.1.so
+export DEB_CFLAGS_MAINT_APPEND = -I$(LUAJIT_INC)
+
+%:
+	dh $@
+
+# The build-time test tries to load our .so standalone with nginx, but
+# the stream-lua module requires ngx_stream_module.so to be loaded first.
+# Skip here; the module is properly tested at install time via
+# debian/tests/generic.
+override_dh_auto_test:

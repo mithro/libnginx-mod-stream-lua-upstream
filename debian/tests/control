@@ -1,0 +1,3 @@
+Tests: generic
+Depends: @, nginx-core
+Restrictions: needs-root

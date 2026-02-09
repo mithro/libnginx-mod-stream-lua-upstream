@@ -1,0 +1,27 @@
+Source: libnginx-mod-stream-lua
+Section: httpd
+Priority: optional
+Maintainer: Tim Ansell <me@mith.ro>
+Build-Depends: debhelper-compat (= 13),
+               dh-sequence-nginx,
+               libnginx-mod-stream,
+               libluajit-5.1-dev | libluajit2-5.1-dev,
+Standards-Version: 4.7.2
+Homepage: https://github.com/openresty/stream-lua-nginx-module
+Rules-Requires-Root: no
+
+Package: libnginx-mod-stream-lua
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Recommends: nginx,
+Description: Lua scripting module for Nginx stream (TCP/UDP) subsystem
+ Embeds LuaJIT into the Nginx stream subsystem, enabling Lua scripting
+ for TCP and UDP proxying. Provides directives such as
+ content_by_lua_block, balancer_by_lua_file, init_worker_by_lua_block,
+ log_by_lua_block, and preread_by_lua_block in stream server contexts.
+ .
+ Also supports lua_shared_dict for shared memory zones, cosocket API
+ for non-blocking TCP/UDP communication, and SSL certificate handling
+ via ssl_certificate_by_lua_block.

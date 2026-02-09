@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+echo "Testing nginx starts with stream-lua module loaded..."
+nginx -t
+echo "PASS: nginx -t succeeded"
+
+echo "Testing nginx reload..."
+systemctl start nginx || true
+nginx -s reload
+echo "PASS: nginx reload succeeded"
+
+echo "Testing nginx restart..."
+systemctl restart nginx
+echo "PASS: nginx restart succeeded"
+
+echo "All tests passed."
