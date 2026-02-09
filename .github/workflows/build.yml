@@ -53,21 +53,21 @@ jobs:
               # Download upstream source
               mkdir -p /build
               wget -q -O /build/upstream.tar.gz \
-                https://github.com/openresty/stream-lua-nginx-module/archive/refs/tags/v0.0.16.tar.gz
+                https://github.com/openresty/stream-lua-nginx-module/archive/refs/tags/v0.0.17.tar.gz
 
               # Create orig tarball with Debian naming
               cp /build/upstream.tar.gz \
-                /build/libnginx-mod-stream-lua_0.0.16.orig.tar.gz
+                /build/libnginx-mod-stream-lua_0.0.17.orig.tar.gz
 
               # Extract upstream source and add our debian/ packaging
               cd /build
               tar xzf upstream.tar.gz
-              mv stream-lua-nginx-module-0.0.16 libnginx-mod-stream-lua-0.0.16
-              cp -a /src/debian libnginx-mod-stream-lua-0.0.16/debian
+              mv stream-lua-nginx-module-0.0.17 libnginx-mod-stream-lua-0.0.17
+              cp -a /src/debian libnginx-mod-stream-lua-0.0.17/debian
               rm upstream.tar.gz
 
               # Build the package
-              cd libnginx-mod-stream-lua-0.0.16
+              cd libnginx-mod-stream-lua-0.0.17
               dpkg-buildpackage -us -uc
 
               # Copy artifacts to output
