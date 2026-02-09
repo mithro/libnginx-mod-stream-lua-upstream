@@ -13,7 +13,8 @@ Rules-Requires-Root: no
 Package: libnginx-mod-stream-lua
 Architecture: any
 Multi-Arch: foreign
-Depends: ${misc:Depends},
+Depends: libnginx-mod-stream,
+         ${misc:Depends},
          ${shlibs:Depends},
 Recommends: nginx,
 Description: Lua scripting module for Nginx stream (TCP/UDP) subsystem
