@@ -1,0 +1,97 @@
+name: Build Debian Package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: debian-sid
+            image: debian:sid
+            arch: arm64
+          - distro: debian-sid
+            image: debian:sid
+            arch: amd64
+          - distro: ubuntu-24.04
+            image: ubuntu:24.04
+            arch: amd64
+          - distro: ubuntu-24.04
+            image: ubuntu:24.04
+            arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU for cross-architecture builds
+        if: matrix.arch != 'amd64'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Build Debian package (${{ matrix.distro }} ${{ matrix.arch }})
+        run: |
+          mkdir -p output
+          docker run --rm \
+            --platform linux/${{ matrix.arch }} \
+            -v "$PWD/debian:/src/debian:ro" \
+            -v "$PWD/output:/output" \
+            ${{ matrix.image }} bash -exc '
+              # Install build dependencies
+              apt-get update
+              apt-get install -y --no-install-recommends \
+                build-essential dpkg-dev debhelper dh-sequence-nginx \
+                libnginx-mod-stream \
+                quilt wget ca-certificates
+              # LuaJIT dev package name differs: Debian=libluajit-5.1-dev, Ubuntu=libluajit2-5.1-dev
+              apt-get install -y --no-install-recommends libluajit-5.1-dev || \
+                apt-get install -y --no-install-recommends libluajit2-5.1-dev
+
+              # Download upstream source
+              mkdir -p /build
+              wget -q -O /build/upstream.tar.gz \
+                https://github.com/openresty/stream-lua-nginx-module/archive/refs/tags/v0.0.16.tar.gz
+
+              # Create orig tarball with Debian naming
+              cp /build/upstream.tar.gz \
+                /build/libnginx-mod-stream-lua_0.0.16.orig.tar.gz
+
+              # Extract upstream source and add our debian/ packaging
+              cd /build
+              tar xzf upstream.tar.gz
+              mv stream-lua-nginx-module-0.0.16 libnginx-mod-stream-lua-0.0.16
+              cp -a /src/debian libnginx-mod-stream-lua-0.0.16/debian
+              rm upstream.tar.gz
+
+              # Build the package
+              cd libnginx-mod-stream-lua-0.0.16
+              dpkg-buildpackage -us -uc
+
+              # Copy artifacts to output
+              cp /build/libnginx-mod-stream-lua_*.deb /output/
+              cp /build/libnginx-mod-stream-lua_*.buildinfo /output/ || true
+              cp /build/libnginx-mod-stream-lua_*.changes /output/ || true
+            '
+
+      - name: Verify package contents
+        run: |
+          echo "=== Package info ==="
+          dpkg-deb -I output/libnginx-mod-stream-lua_*.deb
+          echo ""
+          echo "=== Package contents ==="
+          dpkg-deb -c output/libnginx-mod-stream-lua_*.deb
+          echo ""
+          echo "=== Checking required files ==="
+          dpkg-deb -c output/libnginx-mod-stream-lua_*.deb | grep -q ngx_stream_lua_module.so
+          echo "PASS: ngx_stream_lua_module.so present"
+          dpkg-deb -c output/libnginx-mod-stream-lua_*.deb | grep -q mod-stream-lua.conf
+          echo "PASS: mod-stream-lua.conf present"
+
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-package-${{ matrix.distro }}-${{ matrix.arch }}
+          path: output/*.deb
