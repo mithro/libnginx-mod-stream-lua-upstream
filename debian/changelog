@@ -1,3 +1,11 @@
+libnginx-mod-stream-lua (0.0.17-2) unstable; urgency=medium
+
+  * Enable stream SSL support (--with-stream_ssl_module) so that
+    cosocket sslhandshake() and ssl_certificate_by_lua_block are
+    available at runtime.
+
+ -- Tim Ansell <me@mith.ro>  Mon, 09 Feb 2026 16:31:37 +1030
+
 libnginx-mod-stream-lua (0.0.17-1) unstable; urgency=medium
 
   * Initial release.
